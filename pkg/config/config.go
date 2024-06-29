@@ -10,14 +10,18 @@ import (
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/v2"
 
-	yamlv2 "gopkg.in/yaml.v2"
+	yamlv3 "gopkg.in/yaml.v3"
 )
 
 var k = koanf.New(".")
 
+type PluginConfig struct {
+	InputPlugins  []string `koanf:"input_plugins" yaml:"input_plugins"`
+	OutputPlugins []string `koanf:"output_plugins" yaml:"output_plugins"`
+}
+
 type Config struct {
-	InputPlugins  []string `koanf:"input_plugins"`
-	OutputPlugins []string `koanf:"output_plugins"`
+	Plugins PluginConfig `koanf:"plugins" yaml:"plugins"`
 }
 
 // LoadConfig loads the configuration from a file and environment variables.
@@ -65,11 +69,13 @@ func WatchConfig(filename string, onReload func(cfg *Config)) {
 
 func createDefaultConfig(filename string) error {
 	defaultConfig := &Config{
-		InputPlugins:  []string{"plugins/input/usb-sync.so"},
-		OutputPlugins: []string{"plugins/output/email.so"},
+		Plugins: PluginConfig{
+			InputPlugins:  []string{"plugins/input/usb-sync.so"},
+			OutputPlugins: []string{"plugins/output/email.so"},
+		},
 	}
 
-	data, err := yamlv2.Marshal(defaultConfig)
+	data, err := yamlv3.Marshal(defaultConfig)
 	if err != nil {
 		return err
 	}
