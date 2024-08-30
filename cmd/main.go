@@ -24,4 +24,7 @@ func main() {
 
 	log.Info().Msgf("Loaded config: %+v", cfg)
 
+	// Keep the main goroutine alive.
+	select {}
+
 }

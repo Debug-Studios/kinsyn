@@ -15,9 +15,25 @@ import (
 
 var k = koanf.New(".")
 
+type PluginType int
+
+const (
+	InputPluginType PluginType = iota
+	OutputPluginType
+)
+
+func (p PluginType) String() string {
+	return [...]string{"input", "output"}[p]
+}
+
+type Plugin struct {
+	Path   string                 `koanf:"path" yaml:"path"`
+	Config map[string]interface{} `koanf:"config" yaml:"config"`
+}
+
 type PluginConfig struct {
-	InputPlugins  []string `koanf:"input_plugins" yaml:"input_plugins"`
-	OutputPlugins []string `koanf:"output_plugins" yaml:"output_plugins"`
+	InputPlugins  map[string]Plugin `koanf:"input_plugins" yaml:"input_plugins"`
+	OutputPlugins map[string]Plugin `koanf:"output_plugins" yaml:"output_plugins"`
 }
 
 type Config struct {
@@ -67,15 +83,9 @@ func WatchConfig(filename string, onReload func(cfg *Config)) {
 	}
 }
 
-func createDefaultConfig(filename string) error {
-	defaultConfig := &Config{
-		Plugins: PluginConfig{
-			InputPlugins:  []string{"plugins/input/usb-sync.so"},
-			OutputPlugins: []string{"plugins/output/email.so"},
-		},
-	}
-
-	data, err := yamlv3.Marshal(defaultConfig)
+// SaveConfig saves the configuration to a file.
+func SaveConfig(filename string, cfg *Config) error {
+	data, err := yamlv3.Marshal(cfg)
 	if err != nil {
 		return err
 	}
@@ -85,4 +95,57 @@ func createDefaultConfig(filename string) error {
 	}
 
 	return os.WriteFile(filename, data, 0644)
+}
+
+func createDefaultConfig(filename string) error {
+	defaultConfig := &Config{
+		Plugins: PluginConfig{
+			InputPlugins: map[string]Plugin{
+				"usbsync":  {Path: "plugins/input/usbsync"},
+				"filepath": {Path: "plugins/input/filepath", Config: map[string]interface{}{"path": "/Users/hd/highlights.txt"}},
+			},
+			OutputPlugins: map[string]Plugin{
+				"email": {Path: "plugins/output/email"},
+			},
+		},
+	}
+
+	return SaveConfig(filename, defaultConfig)
+}
+
+// GetPluginConfig gets the configuration for a specific plugin.
+func GetPluginConfig(pluginType PluginType, pluginName string) (map[string]interface{}, error) {
+	cfg, err := LoadConfig(GetConfigFilePath())
+	if err != nil {
+		return nil, err
+	}
+
+	var pluginConfig map[string]interface{}
+	if pluginType == InputPluginType {
+		pluginConfig = cfg.Plugins.InputPlugins[pluginName].Config
+	} else if pluginType == OutputPluginType {
+		pluginConfig = cfg.Plugins.OutputPlugins[pluginName].Config
+	}
+
+	return pluginConfig, nil
+}
+
+// SetPluginConfig sets the configuration for a specific plugin.
+func SetPluginConfig(pluginType PluginType, pluginName string, pluginCfg map[string]interface{}) error {
+	cfg, err := LoadConfig(GetConfigFilePath())
+	if err != nil {
+		return err
+	}
+
+	if pluginType == InputPluginType {
+		plugin := cfg.Plugins.InputPlugins[pluginName]
+		plugin.Config = pluginCfg
+		cfg.Plugins.InputPlugins[pluginName] = plugin
+	} else if pluginType == OutputPluginType {
+		plugin := cfg.Plugins.OutputPlugins[pluginName]
+		plugin.Config = pluginCfg
+		cfg.Plugins.OutputPlugins[pluginName] = plugin
+	}
+
+	return SaveConfig(GetConfigFilePath(), cfg)
 }
