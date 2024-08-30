@@ -1,5 +1,7 @@
 package plugins
 
+import "kinsyn/pkg/commons"
+
 type Plugin interface {
 	GetConfig() map[string]interface{}
 	SetConfig(config map[string]interface{})
@@ -7,10 +9,10 @@ type Plugin interface {
 
 type InputPlugin interface {
 	Plugin
-	SyncHighlights() ([]string, error)
+	SyncHighlights() ([]commons.Highlight, error)
 }
 
 type OutputPlugin interface {
 	Plugin
-	SendNotification(string) error
+	SendNotification([]commons.Highlight) error
 }

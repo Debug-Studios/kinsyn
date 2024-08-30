@@ -102,7 +102,7 @@ func createDefaultConfig(filename string) error {
 		Plugins: PluginConfig{
 			InputPlugins: map[string]Plugin{
 				"usbsync":  {Path: "plugins/input/usbsync"},
-				"filepath": {Path: "plugins/input/filepath", Config: map[string]interface{}{"path": "/Users/hd/highlights.txt"}},
+				"filepath": {Path: "plugins/input/filepath", Config: map[string]interface{}{"path": "/Users/hd/Downloads/highlights.txt"}},
 			},
 			OutputPlugins: map[string]Plugin{
 				"email": {Path: "plugins/output/email"},
