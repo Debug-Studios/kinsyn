@@ -6,6 +6,9 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
@@ -34,9 +37,10 @@ func main() {
 
 	log.Info().Msgf("Highlights: %v", highlights[0])
 
-	// Keep the main goroutine alive.
-	select {}
+	a := app.New()
+	w := a.NewWindow("Hello World")
 
-	// TODO: Load some sort of frontend for the app.
+	w.SetContent(widget.NewLabel("Hello World!"))
+	w.ShowAndRun()
 
 }
