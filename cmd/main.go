@@ -35,7 +35,9 @@ func main() {
 		log.Error().Msgf("Failed to sync highlights: %v", err)
 	}
 
-	log.Info().Msgf("Highlights: %v", highlights[0])
+	if len(highlights) > 0 {
+		log.Info().Msgf("Highlights: %v", highlights[0])
+	}
 
 	a := app.New()
 	w := a.NewWindow("Hello World")
