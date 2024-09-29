@@ -6,9 +6,6 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-
-	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
@@ -38,11 +35,5 @@ func main() {
 	if len(highlights) > 0 {
 		log.Info().Msgf("Highlights: %v", highlights[0])
 	}
-
-	a := app.New()
-	w := a.NewWindow("Hello World")
-
-	w.SetContent(widget.NewLabel("Hello World!"))
-	w.ShowAndRun()
 
 }
