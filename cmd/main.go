@@ -1,39 +1,46 @@
 package main
 
 import (
-	"kinsyn/pkg/config"
-	"kinsyn/plugins/input/filepath"
+	"kinsyn/plugins"
+	"os/exec"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	"github.com/hashicorp/go-plugin"
 )
 
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
-	configFilePath := config.GetConfigFilePath()
-
-	cfg, err := config.LoadConfig(configFilePath)
-	if err != nil {
-		panic(err)
-	}
-
-	// Watch the config file for changes.
-	go config.WatchConfig(configFilePath, func(cfg *config.Config) {
-		log.Info().Msgf("Config reloaded: %+v", cfg)
+	client := plugin.NewClient(&plugin.ClientConfig{
+		HandshakeConfig:  plugins.HandshakeConfig,
+		AllowedProtocols: []plugin.Protocol{plugin.ProtocolGRPC, plugin.ProtocolNetRPC},
+		Cmd:              exec.Command("./filepath"),
+		Plugins:          plugins.PluginMap,
 	})
 
-	log.Info().Msgf("Loaded config: %+v", cfg)
+	defer client.Kill()
 
-	filepathPlugin := &filepath.FilePathPlugin{}
-
-	highlights, err := filepathPlugin.SyncHighlights()
+	rpcClient, err := client.Client()
 	if err != nil {
-		log.Error().Msgf("Failed to sync highlights: %v", err)
+		log.Error().Msgf("Error creating RPC client: %v", err)
+		return
 	}
 
-	if len(highlights) > 0 {
-		log.Info().Msgf("Highlights: %v", highlights[0])
+	raw, err := rpcClient.Dispense("input")
+	if err != nil {
+		log.Error().Msgf("Error dispensing plugin: %v", err)
+		return
 	}
 
+	inputPlugin := raw.(plugins.InputPlugin)
+
+	highlights, err := inputPlugin.SyncHighlights()
+	if err != nil {
+		log.Error().Msgf("Error syncing highlights: %v", err)
+		return
+	}
+
+	log.Info().Msgf("Synced %d highlights", len(highlights))
 }

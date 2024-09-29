@@ -1,4 +1,4 @@
-package filepath
+package main
 
 import (
 	"kinsyn/pkg/commons"
@@ -6,6 +6,8 @@ import (
 	"kinsyn/pkg/parser"
 	"kinsyn/plugins"
 	"os"
+
+	"github.com/hashicorp/go-plugin"
 )
 
 type FilePathPlugin struct{}
@@ -50,4 +52,15 @@ func (f *FilePathPlugin) SyncHighlights() ([]commons.Highlight, error) {
 	}
 
 	return highlights, nil
+}
+
+func main() {
+	plugin.Serve(&plugin.ServeConfig{
+		HandshakeConfig: plugins.HandshakeConfig,
+		Plugins: map[string]plugin.Plugin{
+			"input": &plugins.InputPluginGRPC{Impl: &FilePathPlugin{}},
+		},
+
+		GRPCServer: plugin.DefaultGRPCServer,
+	})
 }
