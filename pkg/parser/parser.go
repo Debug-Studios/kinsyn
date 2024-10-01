@@ -34,7 +34,7 @@ func ParseHighlights(reader io.Reader) ([]commons.Highlight, error) {
 		if isTitleAndAuthorLine(line) {
 			err := parseTitleAndAuthor(line, &currentHighlight)
 			if err != nil {
-				return nil, err // Log or handle error as needed
+				return nil, err
 			}
 		} else if isLocationLine(line) {
 			err := parseLocationAndDate(line, &currentHighlight)
@@ -42,11 +42,20 @@ func ParseHighlights(reader io.Reader) ([]commons.Highlight, error) {
 				return nil, err // Log or handle error as needed
 			}
 		} else if isSeparatorLine(line) {
+			// Check if the highlight is invalid
+			if currentHighlight.BookTitle == "" || currentHighlight.BookAuthor == "" {
+				return nil, fmt.Errorf("author and title line missing")
+			}
+			if currentHighlight.BookLocationStart == 0 || currentHighlight.BookLocationEnd == 0 || currentHighlight.CreatedAt.IsZero() {
+				return nil, fmt.Errorf("location line missing")
+			}
+
 			highlights = append(highlights, currentHighlight)
 			currentHighlight = commons.Highlight{} // Reset for the next highlight
 		} else {
 			appendContent(line, &currentHighlight)
 		}
+
 	}
 
 	// Add the last highlight if it exists
@@ -78,17 +87,22 @@ func isSeparatorLine(line string) bool {
 
 // parseTitleAndAuthor extracts the book title and author from the line.
 func parseTitleAndAuthor(line string, highlight *commons.Highlight) error {
-	parts := strings.Split(line, "(")
-	if len(parts) != 2 {
-		return fmt.Errorf("invalid title and author line format")
+	// Find the last occurrence of '(' to correctly handle cases where the title contains parentheses.
+	// Ex: The Lost Soul of the City (Nameless: Season Two) (Koontz, Dean)
+	lastParenthesesIndex := strings.LastIndex(line, "(")
+	if lastParenthesesIndex == -1 || !strings.HasSuffix(line, ")") {
+		return fmt.Errorf("invalid title and author line format. line = %s", line)
 	}
-	highlight.BookTitle = strings.TrimSpace(parts[0])
-	highlight.BookAuthor = strings.TrimSuffix(strings.TrimSpace(parts[1]), ")")
+
+	// Extract the title and author.
+	highlight.BookTitle = strings.TrimSpace(line[:lastParenthesesIndex])
+	highlight.BookAuthor = strings.TrimSuffix(strings.TrimSpace(line[lastParenthesesIndex+1:]), ")")
+
 	return nil
 }
 
 // parseLocationAndDate extracts the location and date from the line.
-// - Your Highlight on Location 1885-1887 | Added on Sunday, January 7, 2024 11:57:36 PM
+// Ex: - Your Highlight on Location 1885-1887 | Added on Sunday, January 7, 2024 11:57:36 PM
 func parseLocationAndDate(line string, highlight *commons.Highlight) error {
 	parts := strings.Split(line, "| Added on ")
 	if len(parts) != 2 {
@@ -120,8 +134,20 @@ func parseLocationAndDate(line string, highlight *commons.Highlight) error {
 	highlight.BookLocationStart = start
 	highlight.BookLocationEnd = end
 
-	// Sunday, January 7, 2024 11:57:36 PM
-	createdAt, err := time.Parse("Monday, January 2, 2006 3:04:05 PM", strings.TrimSpace(parts[1]))
+	var dateFormats = []string{
+		"Monday, January 2, 2006 3:04:05 PM",
+		"January 2, 2006 15:04:05",
+		"Monday, January 2, 2006 15:04:05",
+	}
+
+	var createdAt time.Time
+	for _, format := range dateFormats {
+		createdAt, err = time.Parse(format, strings.TrimSpace(parts[1]))
+		if err == nil {
+			break
+		}
+	}
+
 	if err != nil {
 		return fmt.Errorf("failed to parse time: %v", err)
 	}

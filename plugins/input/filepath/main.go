@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"kinsyn/pkg/commons"
 	"kinsyn/pkg/config"
 	"kinsyn/pkg/parser"
@@ -16,25 +17,19 @@ var _ plugins.InputPlugin = &FilePathPlugin{}
 
 const PluginName = "filepath"
 
-func (f *FilePathPlugin) GetConfig() map[string]interface{} {
-	config, err := config.GetPluginConfig(config.InputPluginType, PluginName)
-	if err != nil {
-		panic(err)
-	}
-
-	return config
-}
-
-func (f *FilePathPlugin) SetConfig(c map[string]interface{}) {
-	err := config.SetPluginConfig(config.InputPluginType, PluginName, c)
-	if err != nil {
-		panic(err)
-	}
-}
-
 func (f *FilePathPlugin) SyncHighlights() ([]commons.Highlight, error) {
-	config := f.GetConfig()
-	path, ok := config["path"].(string)
+	pluginConf, err := config.GetPluginConfig(config.InputPluginType, PluginName)
+	if err != nil {
+		config.SetPluginConfig(config.InputPluginType, PluginName, map[string]interface{}{"path": "/Users/hd/Downloads/highlights.txt"})
+		pluginConf, err = config.GetPluginConfig(config.InputPluginType, PluginName)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	fmt.Printf("pluginConf: %v\n", pluginConf)
+
+	path, ok := pluginConf["path"].(string)
 	if !ok {
 		panic("invalid config")
 	}

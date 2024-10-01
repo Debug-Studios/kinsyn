@@ -100,13 +100,8 @@ func SaveConfig(filename string, cfg *Config) error {
 func createDefaultConfig(filename string) error {
 	defaultConfig := &Config{
 		Plugins: PluginConfig{
-			InputPlugins: map[string]Plugin{
-				"usbsync":  {Path: "plugins/input/usbsync"},
-				"filepath": {Path: "plugins/input/filepath", Config: map[string]interface{}{"path": "/Users/hd/Downloads/highlights.txt"}},
-			},
-			OutputPlugins: map[string]Plugin{
-				"email": {Path: "plugins/output/email"},
-			},
+			InputPlugins:  map[string]Plugin{},
+			OutputPlugins: map[string]Plugin{},
 		},
 	}
 
