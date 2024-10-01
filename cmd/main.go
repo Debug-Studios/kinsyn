@@ -16,7 +16,7 @@ func main() {
 	client := plugin.NewClient(&plugin.ClientConfig{
 		HandshakeConfig:  plugins.HandshakeConfig,
 		AllowedProtocols: []plugin.Protocol{plugin.ProtocolGRPC, plugin.ProtocolNetRPC},
-		Cmd:              exec.Command("./filepath"),
+		Cmd:              exec.Command("./bin/filepath"),
 		Plugins:          plugins.PluginMap,
 	})
 
