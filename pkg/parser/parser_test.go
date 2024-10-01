@@ -10,7 +10,7 @@ func TestParseHighlightsSuccess(t *testing.T) {
 The Software Engineer's Guidebook: Navigating senior, tech lead, and staff engineer positions at tech companies and startups (Orosz, Gergely)
 - Your Highlight on Location 6868-6871 | Added on Sunday, June 16, 2024 1:16:19 AM
 
-Architecture should not exist in a vacuum; in fact, good architecture is always coupled to the business. What are the goals of the business? The underlying architecture should enable these goals to be met, and if the current systems get in the way of these goals, then it's a worthwhile – and necessary! – task to change them.
+Architecture should not exist in a vacuum; in fact, good architecture is always coupled to the business. What are the goals of the business? The underlying architecture should enable these goals to be met, and if the current systems get in the way of these goals, then it's a worthwhile - and necessary! - task to change them.
 ==========
 The Personal MBA (Kaufman, Josh)
 - Your Highlight on Location 853-854 | Added on Monday, June 24, 2024 1:19:20 PM
