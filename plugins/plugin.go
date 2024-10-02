@@ -2,8 +2,8 @@ package plugins
 
 import (
 	"context"
-	"kinsyn/pkg/commons"
-	"kinsyn/proto"
+	"github.com/Debug-Studios/kinsyn/pkg/commons"
+	"github.com/Debug-Studios/kinsyn/proto"
 
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
@@ -19,8 +19,8 @@ type OutputPlugin interface {
 
 var HandshakeConfig = plugin.HandshakeConfig{
 	ProtocolVersion:  1,
-	MagicCookieKey:   "kinsyn",
-	MagicCookieValue: "kinsyn",
+	MagicCookieKey:   "github.com/Debug-Studios/kinsyn",
+	MagicCookieValue: "github.com/Debug-Studios/kinsyn",
 }
 
 var PluginMap = map[string]plugin.Plugin{

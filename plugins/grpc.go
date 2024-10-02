@@ -2,8 +2,8 @@ package plugins
 
 import (
 	"context"
-	"kinsyn/pkg/commons"
-	"kinsyn/proto"
+	"github.com/Debug-Studios/kinsyn/pkg/commons"
+	"github.com/Debug-Studios/kinsyn/proto"
 	"time"
 )
 

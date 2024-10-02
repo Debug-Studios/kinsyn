@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"kinsyn/pkg/commons"
-	"kinsyn/pkg/config"
-	"kinsyn/pkg/parser"
-	"kinsyn/plugins"
 	"os"
+
+	"github.com/Debug-Studios/kinsyn/pkg/commons"
+	"github.com/Debug-Studios/kinsyn/pkg/config"
+	"github.com/Debug-Studios/kinsyn/pkg/parser"
+	"github.com/Debug-Studios/kinsyn/plugins"
 
 	"github.com/hashicorp/go-plugin"
 )
@@ -26,8 +26,6 @@ func (f *FilePathPlugin) SyncHighlights() ([]commons.Highlight, error) {
 			panic(err)
 		}
 	}
-
-	fmt.Printf("pluginConf: %v\n", pluginConf)
 
 	path, ok := pluginConf["path"].(string)
 	if !ok {

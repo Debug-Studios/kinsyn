@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"kinsyn/pkg/commons"
+	"github.com/Debug-Studios/kinsyn/pkg/commons"
 	"strconv"
 	"strings"
 	"time"

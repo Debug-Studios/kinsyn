@@ -1,4 +1,4 @@
-module kinsyn
+module github.com/Debug-Studios/kinsyn
 
 go 1.22.4
 

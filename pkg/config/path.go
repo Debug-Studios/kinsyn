@@ -24,5 +24,5 @@ func GetConfigFilePath() string {
 		configDir = "."
 	}
 
-	return filepath.Join(configDir, "kinsyn", "config.yaml")
+	return filepath.Join(configDir, "github.com/Debug-Studios/kinsyn", "config.yaml")
 }
