@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/Debug-Studios/kinsyn/plugins"
 	"os/exec"
+
+	"github.com/Debug-Studios/kinsyn/plugins"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
