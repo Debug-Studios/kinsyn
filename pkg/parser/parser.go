@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"github.com/Debug-Studios/kinsyn/pkg/commons"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Debug-Studios/kinsyn/pkg/commons"
 )
 
 /* Kindle Highlight Format
@@ -42,15 +43,14 @@ func ParseHighlights(reader io.Reader) ([]commons.Highlight, error) {
 				return nil, err // Log or handle error as needed
 			}
 		} else if isSeparatorLine(line) {
-			// Check if the highlight is invalid
-			if currentHighlight.BookTitle == "" || currentHighlight.BookAuthor == "" {
-				return nil, fmt.Errorf("author and title line missing")
-			}
-			if currentHighlight.BookLocationStart == 0 || currentHighlight.BookLocationEnd == 0 || currentHighlight.CreatedAt.IsZero() {
-				return nil, fmt.Errorf("location line missing")
+			// Check if the highlight is invalid. Only append valid highlights.
+			if currentHighlight.BookTitle != "" && currentHighlight.BookAuthor != "" && currentHighlight.BookLocationStart != 0 && currentHighlight.BookLocationEnd != 0 && !currentHighlight.CreatedAt.IsZero() {
+				highlights = append(highlights, currentHighlight)
+			} else {
+				// Log or handle invalid highlight as needed
+				fmt.Printf("Invalid highlight: %v\n", currentHighlight)
 			}
 
-			highlights = append(highlights, currentHighlight)
 			currentHighlight = commons.Highlight{} // Reset for the next highlight
 		} else {
 			appendContent(line, &currentHighlight)
@@ -77,7 +77,7 @@ func isTitleAndAuthorLine(line string) bool {
 
 // isLocationLine checks if the line contains location and date information.
 func isLocationLine(line string) bool {
-	return strings.HasPrefix(line, "- Your Highlight on Location")
+	return strings.HasPrefix(line, "- Your Highlight on") && strings.Contains(line, "Location")
 }
 
 // isSeparatorLine checks if the line is the separator ("==========").
@@ -103,6 +103,7 @@ func parseTitleAndAuthor(line string, highlight *commons.Highlight) error {
 
 // parseLocationAndDate extracts the location and date from the line.
 // Ex: - Your Highlight on Location 1885-1887 | Added on Sunday, January 7, 2024 11:57:36 PM
+// Your Highlight on page 8 | Location 64-65 | Added on Tuesday, March 5, 2024 10:52:21 PM
 func parseLocationAndDate(line string, highlight *commons.Highlight) error {
 	parts := strings.Split(line, "| Added on ")
 	if len(parts) != 2 {
@@ -110,6 +111,10 @@ func parseLocationAndDate(line string, highlight *commons.Highlight) error {
 	}
 
 	// - Your Highlight on Location 1885-1887
+	// Your Highlight on page 8 | Location 64-65
+	// Discard everything before "Location" to handle cases where the location has page prefix
+	parts[0] = strings.Split(parts[0], "Location")[1]
+
 	locationParts := strings.Split(parts[0], " ")
 	if len(locationParts) < 3 {
 		return fmt.Errorf("invalid location format")

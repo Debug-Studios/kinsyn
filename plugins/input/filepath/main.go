@@ -7,7 +7,6 @@ import (
 	"github.com/Debug-Studios/kinsyn/pkg/config"
 	"github.com/Debug-Studios/kinsyn/pkg/parser"
 	"github.com/Debug-Studios/kinsyn/plugins"
-
 	"github.com/hashicorp/go-plugin"
 )
 
@@ -19,7 +18,7 @@ const PluginName = "filepath"
 
 func (f *FilePathPlugin) SyncHighlights() ([]commons.Highlight, error) {
 	pluginConf, err := config.GetPluginConfig(config.InputPluginType, PluginName)
-	if err != nil {
+	if err != nil || pluginConf == nil {
 		config.SetPluginConfig(config.InputPluginType, PluginName, map[string]interface{}{"path": "/Users/hd/Downloads/highlights.txt"})
 		pluginConf, err = config.GetPluginConfig(config.InputPluginType, PluginName)
 		if err != nil {
