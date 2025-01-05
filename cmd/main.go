@@ -1,47 +1,40 @@
 package main
 
 import (
-	"os/exec"
-
-	"github.com/Debug-Studios/kinsyn/plugins"
-
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
-
-	"github.com/hashicorp/go-plugin"
 )
 
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
-	client := plugin.NewClient(&plugin.ClientConfig{
-		HandshakeConfig:  plugins.HandshakeConfig,
-		AllowedProtocols: []plugin.Protocol{plugin.ProtocolGRPC},
-		Cmd:              exec.Command("./bin/filepath"),
-		Plugins:          plugins.PluginMap,
-	})
-
-	defer client.Kill()
-
-	rpcClient, err := client.Client()
-	if err != nil {
-		log.Error().Msgf("Error creating RPC client: %v", err)
-		return
-	}
-
-	raw, err := rpcClient.Dispense("input")
-	if err != nil {
-		log.Error().Msgf("Error dispensing plugin: %v", err)
-		return
-	}
-
-	inputPlugin := raw.(plugins.InputPlugin)
-
-	highlights, err := inputPlugin.SyncHighlights()
-	if err != nil {
-		log.Error().Msgf("Error syncing highlights: %v", err)
-		return
-	}
-
-	log.Info().Msgf("Synced %d highlights", len(highlights))
 }
+
+/*
+pluginConf, err := config.GetPluginConfig(config.InputPluginType, PluginName)
+	if err != nil || pluginConf == nil {
+		config.SetPluginConfig(config.InputPluginType, PluginName, map[string]interface{}{"path": "/Users/hd/Downloads/highlights.txt"})
+		pluginConf, err = config.GetPluginConfig(config.InputPluginType, PluginName)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	path, ok := pluginConf["path"].(string)
+	if !ok {
+		panic("invalid config")
+	}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+
+	defer file.Close()
+
+	highlights, err := parser.ParseHighlights(file)
+	if err != nil {
+		return nil, err
+	}
+
+	return highlights, nil
+*/
